@@ -39,10 +39,11 @@ model = [];
 while x(2) > 0
     % Braking force applied at this time step
     u = -20;
+                                                      %vv ADDED FOR (d) vv%
     if mod(floor(t), 2) == 1
         u = 0;
     end
-    
+                                                      %^^ ADDED FOR (d) ^^%
     % Update model
     xModel = F*xModel + B*u;
 
