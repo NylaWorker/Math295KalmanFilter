@@ -16,11 +16,11 @@ xHat = [0; 10];
 xModel = [0; 10];
 
 % State update matrix
-F = %FILL ME IN%
+F = [1 dt; 0 1];                                 %<----- FILLED IN FOR (b)%
 
 % Control input matrix
 m = 10 % arbitrary mass of car
-B = %FILL ME IN%
+B = [dt^2/(2*m); dt/m];                          %<----- FILLED IN FOR (b)%
 
 % Measurement-state transformation
 H = [1 0; 0 1];
@@ -43,9 +43,18 @@ while x(2) > 0
     % Simulate a noisy measurement
     z = H * x + normrnd(0, diag(R));
     
-    % FILL
-    % ME
-    % IN
+                                                  %vv FILLED IN FOR (b) vv%
+    % Predict
+    xHat = F*xHat + B*u;
+    P = F*P*F.' + Q;
+    
+    % Kalman gain
+    K = P*H.'*inv(H*P*H.' + R);
+    
+    % Update
+    xHat = xHat + K*(z - H*xHat);
+    P = (eye(2) - K*H)*P;                                                                 
+                                                  %^^ FILLED IN FOR (b) ^^%
 end
 
 

@@ -19,7 +19,8 @@ xModel = [0; 10];
 F = [1 dt; 0 1];
 
 % Control input matrix
-B = [dt^2/2; dt];
+m = 10;
+B = [dt^2/(2*m); dt/m];
 
 % Measurement-state transformation
 H = [1 0; 0 1];
@@ -38,7 +39,7 @@ model = [];
 while x(2) > 0
     % State update
     t = t + dt;
-    u = -2; % Braking force applied at this time step
+    u = -20; % Braking force applied at this time step
 
     x = F*x + B*u + normrnd(0, diag(Q));
     times = [times t];
