@@ -41,7 +41,10 @@ while x(2) > 0
     
     % Simulate a noisy measurement
     z = H * x + normrnd(0, diag(R));
-
+    
+    % FILL
+    % ME
+    % IN
 end
 
 
