@@ -44,7 +44,7 @@ while x(2) > 0
     times = [times t];
     states = [states x];
     
-    % Model
+    % Update model (ideal system with no noise)
     xModel = F*xModel + B*u;
     model = [model xModel];
     
