@@ -19,7 +19,7 @@ xModel = [0; 10];
 F = %FILL ME IN%
 
 % Control input matrix
-m = 10 % arbitrary mass of car
+m = 10; % arbitrary mass of car
 B = %FILL ME IN%
 
 % Measurement-state transformation
