@@ -1,4 +1,4 @@
-from dronekit import *
+from dronekit import connect
 import sys
 import time
 
@@ -12,7 +12,7 @@ class Solo():
         # Connect to UDP endpoint (and wait for default attributes to accumulate)
         target = sys.argv[1] if len(sys.argv) >= 2 else 'udpin:0.0.0.0:14550'
         print('Connecting to ' + target + '...')
-        self.vehicle = drone_connect(target, wait_ready=True)
+        self.vehicle = connect(target, wait_ready=True)
         self.connected = True
         if not self.vehicle:
             print('bad.')
@@ -23,19 +23,26 @@ class Solo():
             print('vehicle not connected. Call .connect to connect.')
             return
 
-        return self.vehicle.location.local_frame, self.vehicle.attitude
+        pos = self.vehicle.location.global_frame
+        imu = self.vehicle.attitude
+
+        return map(str, (pos.lat, pos.lon, imu.pitch, imu.roll))
 
 def main():
     vehicle = Solo()
     vehicle.connect()
 
-    with open('solo_data.csv', 'w') as f:
-        f.write('gps, imu\n')
+    out = 'latitutde, longitude, pitch, roll\n'
 
-    while True:
-        with open('solo_data.csv', 'a') as f:
-            f.write('{}, {}\n'.format(vehicle.get_state()))
-        time.sleep(0.01)
+    try:
+        while True:
+            state = ','.join(vehicle.get_state())
+            print(state)
+            out += state + '\n'
+            time.sleep(0.05)
+    except KeyboardInterrupt:
+        with open('solo_data4.csv', 'w') as f:
+            f.write(out)
 
     print("Done.")
 
