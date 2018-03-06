@@ -20,7 +20,7 @@ for i=1:m-1
     coord(i+1,1) =  coord(i,1)+ 111111*longdif;coord(i+1,2) =coord(i,2)+111111*latdif;
 end
     
-
+% 
 % p2 = plot(coord(:, 1), coord(:, 2), 'LineWidth', 3);
 % hold on;
 % 
@@ -31,16 +31,28 @@ end
 % hold on;
 
 
-coord2 = ones(m,3);
-coord2(1,1) = 0; coord2(1,2) = 0 ; coord2(1,3) = 0 ;
+coord2 = ones(m,2);
+coord2(1,1) = 0; coord2(1,2) = 0 ;
 
-v=0.004;
+v=400;
 dt = 1/20;
-vdisp = [v*dt; v*dt; 0];
+
+% vDisp = v*dt
+vdisp = [0; 0; 0];
+normal = [0 ; 0; 1];
+
+
+
 for i=1:m-1
-    rotmat = roty(-pitch(i))*rotx(-roll(i));
-    change = rotmat*vdisp;
-    coord2(i+1,:) = coord2(i,:) + change';
+    rotmat = roty(pitch(i))*rotx(roll(i));
+    normalPR = rotmat*normal; 
+    xydir = normalPR(1:2);
+    
+    %%change = rotmat*vdisp;
+%    coord2(i+1,:) = coord2(i,:) + change';
+    coord2(i+1,1) = coord2(i,1) +xydir(1) * v*dt;
+    coord2(i+1,2) = coord2(i,2) +xydir(2) * v*dt;
+    
     
 %     coord2(i+1,:) = (rotmat*coord2(i,:)')'+vdisp';
 %     coord(i+1,1) =  coord(i,1)+ 111111*latdif;coord(i+1,2) =coord(i,2)+111111*longdif;
