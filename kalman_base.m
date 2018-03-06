@@ -22,7 +22,7 @@ F = %FILL ME IN%
 m = 10; % arbitrary mass of car
 B = %FILL ME IN%
 
-% Measurement-state transformation
+% State-measurment transformation
 H = [1 0; 0 1];
 
 % Error covariance matrix

@@ -22,7 +22,7 @@ F = [1 dt; 0 1];
 m = 10;
 B = [dt^2/(2*m); dt/m];
 
-% Measurement-state transformation
+% State-measurement transformation
 H = [1 0; 0 1];
 
 % Error covariance matrix

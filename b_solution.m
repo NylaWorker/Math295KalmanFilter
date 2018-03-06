@@ -22,7 +22,7 @@ F = [1 dt; 0 1];                                 %<----- FILLED IN FOR (b)%
 m = 10; % arbitrary mass of car
 B = [dt^2/(2*m); dt/m];                          %<----- FILLED IN FOR (b)%
 
-% Measurement-state transformation
+% State-measurement transformation
 H = [1 0; 0 1];
 
 % Error covariance matrix
