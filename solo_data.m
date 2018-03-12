@@ -12,4 +12,6 @@ cd = [uint8(autumn(n)*255) uint8(ones(n,1))].';
 
 drawnow
 set(p.Edge, 'ColorBinding','interpolated', 'ColorData',cd);
-
+title('Attitude')
+xlabel('Roll Angle')
+ylabel('Pitch Angle')

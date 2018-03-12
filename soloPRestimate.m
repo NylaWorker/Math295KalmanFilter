@@ -1,29 +1,47 @@
-data = csvread('solo_data.csv', 1, 0);
-n = size(data, 1);
-% p = plot(data(:, 1), data(:, 2), 'LineWidth', 3);
-% cd = [uint8(jet(n)*255) uint8(ones(n,1))].';
-% drawnow
-% set(p.Edge, 'ColorBinding','interpolated', 'ColorData',cd)
+% This file contains a Kalman filter implementation for UAV localization.
+% Authors: Nyla Worker and Kiran Tomlinson
+% 3/12/18
 
-lat = data(:, 1); long = data(:, 2); pitch = data(:,3); roll = data(:,4);
-m = length(lat);
+% Read in 3DR Solo data
+data = csvread('solo_data.csv', 1, 0);
+lat = data(:, 1);
+long = data(:, 2);
+pitch = data(:,3);
+roll = data(:,4);
+
+% Convert lat/lon data into local x/y corrdinates
+n = size(data, 1);
+coord = ones(n,2);
+coord(1,1) = 0; coord(1,2) = 0 ;
+
+for i=1:n-1
+    longdif = long(i)-long(i+1);
+    latdif = lat(i)-lat(i+1);
+    
+    coord(i+1,1) = coord(i,1) + 111111*longdif;
+    coord(i+1,2) = coord(i,2) + 111111*latdif;
+end
+
+% Add gaussian noise to the GPS measurement
+noisyCoord = coord + normrnd(0, varR, m, 2);
+
+
 dt = 1/20;
 t = 0;
 
 % Initial conditions
 x = [0;0;0;0];
 xHat = [0;0;0;0];
-xModelPR = [0; 0; 0; 0];
 
 % State update matrix
 F = [1 0 dt 0; 0 1 0 dt; 0 0 1 0; 0 0 0 1]; 
 
-
 % State-measurement transformation
 H = [1 0 0 0; 0 1 0 0];
 
-% Control input matrix: sensor input matrix 
-B = [0 0; 0 0; 1 0; 0 1];
+% Control input matrix: (pitch/roll input)
+effect = 0.5;
+B = [0 0; 0 0;effect 0; 0 effect];
 
 % Error covariance matrix
 P = eye(4); 
@@ -37,42 +55,23 @@ Q = [varQ 0  0 0; 0 varQ 0 0; 0 0 varQ 0; 0 0 0 varQ];
 varR = 0.1;
 R = [varR 0; 0 varR ];
 
-
-
 times = [];
 states = [];
 measurements = [];
 outputs = [];
-modelPR = [];
-
-m = length(lat);
-coord = ones(m,2);
-coord(1,1) = 0; coord(1,2) = 0 ;
 
 
-for i=1:m-1
-    longdif = long(i)-long(i+1);
+for i=1:n-1
+    % Un-skew pitch/roll data
+    u = [sin(pitch(i)+0.05)*cos(roll(i)-0.05); -sin(roll(i)-0.05)];
     
-    latdif = lat(i)-lat(i+1);
-    coord(i+1,1) =  coord(i,1)+ 111111*longdif;coord(i+1,2) =coord(i,2)+111111*latdif;
-end
+    % Use skewed pitch/roll data
+%     u = [sin(pitch(i))*cos(roll(i)); -sin(roll(i))];
 
-noisyCoord = coord + normrnd(0, varR, m, 2);
-
-
-for i=1:m-1
-%     u = [sin(pitch(i)+0.05)*cos(roll(i)-0.05); -sin(roll(i)-0.05)];
-    u = [sin(pitch(i))*cos(roll(i)); -sin(roll(i))];
-
+    % Update time and state
     t = t + dt;
-    
-    xModelPR = F*x + B*u + normrnd(0, diag(Q));
-    
     times = [times t];
     states = [states coord(i,1:2)'];
-    
-    xModelPR = F*xModelPR + B*u;
-    modelPR= [modelPR xModelPR];
     
     % Predict
     xHat = F*xHat + B*u;
@@ -83,40 +82,24 @@ for i=1:m-1
     
     % Measurement
     z = noisyCoord(i,1:2)';
-%     z = H * xcur + normrnd(0, diag(R));
     measurements = [measurements z];
     
     % Update
     xHat = xHat + K*(z - H*xHat);
     P = (eye(4) - K*H)*P;
-    
-    
-    outputs = [outputs xHat];
-    
-    
    
+    outputs = [outputs xHat];
 end
 
 
-
+% Plot output and measurement
 hold on;
+plot1 = plot( measurements(1,:), measurements(2,:), 'r');
+plot1.Color(4) = 0.5;
+plot(outputs(1,:), outputs(2,:), 'b');
 
-% Position
-plot( measurements(1,:), measurements(2,:), 'cyan');
-% plot(times, model(1,:), 'b');
-plot(states(1,:), states(2,:), 'black');
-plot(outputs(1,:), outputs(2,:), 'r');
-
-
-% Velocity
-% plot(times, measurements(2,:), 'y');
-% plot(times, outputs(2,:), 'r');
-% plot(times, model(2,:), 'b');
-% plot(times, states(2,:), 'black');
-
-xlabel('Time');
-ylabel('Position')
-%legend('Measurement','Model', 'Reality', 'Kalman Output')
+xlabel('x');
+ylabel('y')
 
 
 
