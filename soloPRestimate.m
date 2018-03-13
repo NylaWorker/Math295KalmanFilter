@@ -22,10 +22,6 @@ for i=1:n-1
     coord(i+1,2) = coord(i,2) + 111111*latdif;
 end
 
-% Add gaussian noise to the GPS measurement
-noisyCoord = coord + normrnd(0, varR, m, 2);
-
-
 dt = 1/20;
 t = 0;
 
@@ -54,6 +50,9 @@ Q = [varQ 0  0 0; 0 varQ 0 0; 0 0 varQ 0; 0 0 0 varQ];
 % Measurement noise covariance matrix. Represents measurement noisiness
 varR = 0.1;
 R = [varR 0; 0 varR ];
+
+% Add gaussian noise to the GPS measurement
+noisyCoord = coord + normrnd(0, varR, m, 2);
 
 times = [];
 states = [];
